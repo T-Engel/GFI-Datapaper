@@ -1,0 +1,14 @@
+# R and RStudio
+.Rhistory
+.RData
+.Rproj.user/
+
+# Quarto / R Markdown
+*_cache/
+*_files/
+_freeze/
+_site/
+
+# Data & large external files
+*.zip
+gadm/
