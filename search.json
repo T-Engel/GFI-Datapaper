@@ -4,14 +4,14 @@
     "href": "data_wrangling_and_plotting.html",
     "title": "GFI Fischartenatlas wrangling and plotting",
     "section": "",
-    "text": "Here I inspect the GFI data published on GBIF and do some visualizations for our data paper.\nThis is the link to the data set: https://www.gbif.org/dataset/f5c13912-4f12-4fd0-b1c2-0d74564a5374\nThis is the download link: https://www.gbif.org/occurrence/download/0035794-250920141307145"
+    "text": "Here I inspect the GFI data published on GBIF and I generate some visualizations for our data paper.\nThis is the link to the GBIF data set: https://www.gbif.org/dataset/f5c13912-4f12-4fd0-b1c2-0d74564a5374\nThis is the download link: https://www.gbif.org/occurrence/download/0035794-250920141307145\nThe code for this site can be found here: https://github.com/T-Engel/GFI-Datapaper"
   },
   {
     "objectID": "data_wrangling_and_plotting.html#background",
     "href": "data_wrangling_and_plotting.html#background",
     "title": "GFI Fischartenatlas wrangling and plotting",
     "section": "",
-    "text": "Here I inspect the GFI data published on GBIF and do some visualizations for our data paper.\nThis is the link to the data set: https://www.gbif.org/dataset/f5c13912-4f12-4fd0-b1c2-0d74564a5374\nThis is the download link: https://www.gbif.org/occurrence/download/0035794-250920141307145"
+    "text": "Here I inspect the GFI data published on GBIF and I generate some visualizations for our data paper.\nThis is the link to the GBIF data set: https://www.gbif.org/dataset/f5c13912-4f12-4fd0-b1c2-0d74564a5374\nThis is the download link: https://www.gbif.org/occurrence/download/0035794-250920141307145\nThe code for this site can be found here: https://github.com/T-Engel/GFI-Datapaper"
   },
   {
     "objectID": "data_wrangling_and_plotting.html#data-inspection",
