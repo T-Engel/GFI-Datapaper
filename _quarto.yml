@@ -1,0 +1,7 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "GFI Datapaper"
+  page-navigation: true

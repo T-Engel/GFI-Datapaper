@@ -7,8 +7,8 @@
 *_cache/
 *_files/
 _freeze/
-_site/
 
 # Data & large external files
 *.zip
 gadm/
+/.quarto/
