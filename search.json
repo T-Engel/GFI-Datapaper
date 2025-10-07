@@ -1,0 +1,44 @@
+[
+  {
+    "objectID": "data_wrangling_and_plotting.html",
+    "href": "data_wrangling_and_plotting.html",
+    "title": "GFI Fischartenatlas wrangling and plotting",
+    "section": "",
+    "text": "Here I inspect the GFI data published on GBIF and do some visualizations for our data paper.\nThis is the link to the data set: https://www.gbif.org/dataset/f5c13912-4f12-4fd0-b1c2-0d74564a5374\nThis is the download link: https://www.gbif.org/occurrence/download/0035794-250920141307145"
+  },
+  {
+    "objectID": "data_wrangling_and_plotting.html#background",
+    "href": "data_wrangling_and_plotting.html#background",
+    "title": "GFI Fischartenatlas wrangling and plotting",
+    "section": "",
+    "text": "Here I inspect the GFI data published on GBIF and do some visualizations for our data paper.\nThis is the link to the data set: https://www.gbif.org/dataset/f5c13912-4f12-4fd0-b1c2-0d74564a5374\nThis is the download link: https://www.gbif.org/occurrence/download/0035794-250920141307145"
+  },
+  {
+    "objectID": "data_wrangling_and_plotting.html#data-inspection",
+    "href": "data_wrangling_and_plotting.html#data-inspection",
+    "title": "GFI Fischartenatlas wrangling and plotting",
+    "section": "Data inspection",
+    "text": "Data inspection\n\n# Loading packages and reading data ---------------------------------------\n\nlibrary(tidyverse)\nlibrary(cowplot)\nlibrary(rgbif)\nlibrary(geodata)\nlibrary(sf)\nlibrary(units)\nlibrary(lubridate)\n\ntheme_set(theme_cowplot()) # ggplot theme\noptions(scipen=999) # Avoiding scientific notation of numbers\n\n# Retrieve data gbif \ndat&lt;-occ_download_get(\"0035794-250920141307145\",overwrite = F) |&gt; occ_download_import() #  https://doi.org/10.15468/dl.wuurkx\n\n# remove columns with only NAs. They were added by GBIF.\ndat &lt;-\n  dat |&gt;\n  select(-where(function(x) all(is.na(x))))\n\n\n# Check taxonomic match by gbif\nunmatched_taxa &lt;-\n  dat |&gt; \n  filter(scientificName == \"incertae sedis\") |&gt; \n  summarise(n=n(), .by= verbatimScientificName) |&gt;\n  arrange(desc(n))\n\nunmatched_taxa\n\n\n  \n\n\n# all matched\n\nAll species matched against GBIF Backbone"
+  },
+  {
+    "objectID": "data_wrangling_and_plotting.html#spatial-distribution",
+    "href": "data_wrangling_and_plotting.html#spatial-distribution",
+    "title": "GFI Fischartenatlas wrangling and plotting",
+    "section": "Spatial distribution",
+    "text": "Spatial distribution\nHow many records per country?\n\nrecords_per_country&lt;-\n  dat |&gt; \n  group_by(countryCode) |&gt; \n  summarise(number= n()) |&gt; \n  arrange(desc(number))\n\nrecords_per_country\n\n\n  \n\n\n\nVery few data points are outside of Germany.\nPlot simple world map with data:\n\nincluded_countries &lt;- records_per_country$countryCode\n\n# download shape\n\ncountries &lt;- world(resolution=4, path= tempdir(), level=0, version=\"latest\")\n\n# convert to sf object\ncountries&lt;- sf::st_as_sf(countries)\n\n# make data records spatial\nprojcrs &lt;- \"+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0\"\ndat &lt;-dat |&gt;  filter(!is.na(decimalLatitude) & !is.na(decimalLongitude)) #remove NAs\ndat &lt;- dat |&gt; st_as_sf(coords = c(\"decimalLongitude\", \"decimalLatitude\"),\n                       crs = projcrs)\n\n\n# inspect\n\n  ggplot()+\n  geom_sf(data= countries)+ \n  geom_sf(data = dat, col= \"red\")\n\n\n\n\n\n\n\n\nCrop to extent of data:\n\n# Use European projection\ncountries&lt;- countries |&gt; st_transform(crs = 3035)\ndat&lt;- dat |&gt; st_transform(crs = 3035)\n\n# bounding box around data \nbb &lt;- st_bbox(dat) # zoom to area with data\nbuffer &lt;- 50000 # add 50 km buffer to bounding box\nbb &lt;- bb + c(-buffer, -buffer, buffer, buffer)\n\n#plot\nplot1&lt;-\n ggplot()+\n  geom_sf(data= countries, fill=\"#e0ecdf\")+ \n  geom_sf(data = dat, col= \"#b2182b\")+\n   coord_sf(xlim = c(bb[\"xmin\"], bb[\"xmax\"]),\n            ylim = c(bb[\"ymin\"], bb[\"ymax\"]),\n            expand = 0)\nplot1\n\n\n\n\n\n\n\n\nLets use a hexagonal grid instead, so it’s easier to see the point density:\n\n# subset base map to bounding box\n\ncountries &lt;- st_intersection(countries, st_as_sfc(bb))\n\nWarning: attribute variables are assumed to be spatially constant throughout\nall geometries\n\n# make hexagonal grid\ngrid &lt;- st_make_grid(countries, square = FALSE,\n                     cellsize = set_units(40000, \"m\"))\n\n# convert grid to sf\ngrid &lt;- st_as_sf(grid)\n\n# check which cells have data points in them and count them\ninter&lt;-st_intersects(grid, dat)\ngrid$records= lengths(inter) \n\n\nplot2&lt;-\n  ggplot()+\n  geom_sf(data= countries, fill=\"#e0ecdf\")+\n  geom_sf(data = filter(grid, records&gt;0), # only cells with data\n          aes(fill= records), alpha=1)+\n  # geom_sf(data= filter(countries, COUNTRY==\"Germany\"), fill=NA, color=\"black\")+\n  scale_fill_viridis_c(option=\"magma\",trans = \"log\", direction= -1,\n                       breaks = c(1,10,100,3000),\n                       name= \"# Records\")+\n  theme(legend.position = \"right\")\nplot2"
+  },
+  {
+    "objectID": "data_wrangling_and_plotting.html#temporal-distribution",
+    "href": "data_wrangling_and_plotting.html#temporal-distribution",
+    "title": "GFI Fischartenatlas wrangling and plotting",
+    "section": "Temporal distribution",
+    "text": "Temporal distribution\nCount records per year and plot barplot\n\ndata_per_year&lt;-\n  dat |&gt; \n  group_by(year) |&gt; \n  summarise(number=n())\n\n# inspect earliest years\nhead(data_per_year)\n\n\n  \n\n\n# inspect latest years\ntail(data_per_year)\n\n\n  \n\n\n\nThe earliest data are from 1573. Not sure if that is correct. The latest are from 2025. There are some records without year information\n\n# plot data \nplot3&lt;-\n  data_per_year |&gt; \n  ggplot()+\n  geom_bar(aes(x=year, y=number), stat= \"identity\", fill = \"#4daf4a\")+\n  labs(y=\"# Records\", x=\"Year\")\nplot3\n\nWarning: Removed 1 row containing missing values or values outside the scale range\n(`geom_bar()`).\n\n\n\n\n\n\n\n\n\nIt’s hard to see the few historical data. I’ll facet the data along the Year axis\n\n# Splitting the data \ndata_per_year &lt;- data_per_year %&gt;%\n  mutate(period = case_when(\n    year &lt; 1880 ~ \"Before 1880\",\n    year &lt; 1980 ~ \"1880 - 1980\",\n    TRUE ~ \"1980 – Present\"\n  ),\n  period = factor(period, levels = c(\"Before 1880\",\"1880 - 1980\", \"1980 – Present\"))\n  )\n\nplot3&lt;-\n  data_per_year |&gt; \n  ggplot()+\n  geom_bar(aes(x=year, y=number), stat= \"identity\", fill = \"#4daf4a\")+\n  labs(y=\"# Records\", x=\"Year\")+\n  facet_wrap(~ period, nrow = 1, scales = \"free\")\n\nplot3\n\nWarning: Removed 1 row containing missing values or values outside the scale range\n(`geom_bar()`).\n\n\n\n\n\n\n\n\n# count records per period for caption\ndata_per_period &lt;-\ndata_per_year |&gt; \n  group_by(period) |&gt; \n  summarise(total=sum(number))\n\ndata_per_period"
+  },
+  {
+    "objectID": "data_wrangling_and_plotting.html#combine-figure",
+    "href": "data_wrangling_and_plotting.html#combine-figure",
+    "title": "GFI Fischartenatlas wrangling and plotting",
+    "section": "Combine Figure",
+    "text": "Combine Figure\n\nfig2&lt;-plot_grid(plot2, plot3, nrow = 2, labels = c(\"A\",\"B\"))\n\nWarning: Removed 1 row containing missing values or values outside the scale range\n(`geom_bar()`).\n\nfig2\n\n\n\n\n\n\n\n\nSave\n\nsave_plot(\"figure2.jpg\", fig2,ncol = 3, nrow = 2,base_asp = 0.8)\n\nLets look at the final JPG with figure caption.\n\n\n\nFigure 1: Geographic and temporal scope of the data set. A Spatial distribution and number of records based on a 40 km hexagonal grid. B Temporal distribution as number of records per year. For better readability the data are facetted into three time periods: Before 1880 (63 records), 1880–1980 (464 records), 1980 – Present (53123 records)."
+  }
+]
