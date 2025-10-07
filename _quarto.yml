@@ -5,3 +5,7 @@ project:
 website:
   title: "GFI Datapaper"
   page-navigation: true
+
+format:
+  html:
+    embed-resources: true
