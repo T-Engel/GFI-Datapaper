@@ -1,0 +1,234 @@
+---
+title: "GFI Fischartenatlas wrangling and plotting"
+format: html
+df-print: paged
+editor: visual
+---
+
+## Background
+
+Here I inspect the GFI data published on GBIF and do some visualizations for our data paper.
+
+This is the link to the data set: <https://www.gbif.org/dataset/f5c13912-4f12-4fd0-b1c2-0d74564a5374>
+
+This is the download link: <https://www.gbif.org/occurrence/download/0035794-250920141307145>
+
+## Data inspection
+
+```{r}
+#| warning: false
+# Loading packages and reading data ---------------------------------------
+
+library(tidyverse)
+library(cowplot)
+library(rgbif)
+library(geodata)
+library(sf)
+library(units)
+library(lubridate)
+
+theme_set(theme_cowplot()) # ggplot theme
+options(scipen=999) # Avoiding scientific notation of numbers
+
+# Retrieve data gbif 
+dat<-occ_download_get("0035794-250920141307145",overwrite = F) |> occ_download_import() #  https://doi.org/10.15468/dl.wuurkx
+
+# remove columns with only NAs. They were added by GBIF.
+dat <-
+  dat |>
+  select(-where(function(x) all(is.na(x))))
+
+
+# Check taxonomic match by gbif
+unmatched_taxa <-
+  dat |> 
+  filter(scientificName == "incertae sedis") |> 
+  summarise(n=n(), .by= verbatimScientificName) |>
+  arrange(desc(n))
+
+unmatched_taxa
+# all matched
+
+
+```
+
+All species matched against GBIF Backbone
+
+## Spatial distribution
+
+How many records per country?
+
+```{r}
+records_per_country<-
+  dat |> 
+  group_by(countryCode) |> 
+  summarise(number= n()) |> 
+  arrange(desc(number))
+
+records_per_country
+```
+
+Very few data points are outside of Germany.
+
+Plot simple world map with data:
+
+```{r}
+included_countries <- records_per_country$countryCode
+
+# download shape
+
+countries <- world(resolution=4, path= tempdir(), level=0, version="latest")
+
+# convert to sf object
+countries<- sf::st_as_sf(countries)
+
+# make data records spatial
+projcrs <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+dat <-dat |>  filter(!is.na(decimalLatitude) & !is.na(decimalLongitude)) #remove NAs
+dat <- dat |> st_as_sf(coords = c("decimalLongitude", "decimalLatitude"),
+                       crs = projcrs)
+
+
+# inspect
+
+  ggplot()+
+  geom_sf(data= countries)+ 
+  geom_sf(data = dat, col= "red")
+```
+
+Crop to extent of data:
+
+```{r}
+# Use European projection
+countries<- countries |> st_transform(crs = 3035)
+dat<- dat |> st_transform(crs = 3035)
+
+# bounding box around data 
+bb <- st_bbox(dat) # zoom to area with data
+buffer <- 50000 # add 50 km buffer to bounding box
+bb <- bb + c(-buffer, -buffer, buffer, buffer)
+
+#plot
+plot1<-
+ ggplot()+
+  geom_sf(data= countries, fill="#e0ecdf")+ 
+  geom_sf(data = dat, col= "#b2182b")+
+   coord_sf(xlim = c(bb["xmin"], bb["xmax"]),
+            ylim = c(bb["ymin"], bb["ymax"]),
+            expand = 0)
+plot1
+```
+
+Lets use a hexagonal grid instead, so it's easier to see the point density:
+
+```{r}
+# subset base map to bounding box
+
+countries <- st_intersection(countries, st_as_sfc(bb))
+
+# make hexagonal grid
+grid <- st_make_grid(countries, square = FALSE,
+                     cellsize = set_units(40000, "m"))
+
+# convert grid to sf
+grid <- st_as_sf(grid)
+
+# check which cells have data points in them and count them
+inter<-st_intersects(grid, dat)
+grid$records= lengths(inter) 
+
+
+plot2<-
+  ggplot()+
+  geom_sf(data= countries, fill="#e0ecdf")+
+  geom_sf(data = filter(grid, records>0), # only cells with data
+          aes(fill= records), alpha=1)+
+  # geom_sf(data= filter(countries, COUNTRY=="Germany"), fill=NA, color="black")+
+  scale_fill_viridis_c(option="magma",trans = "log", direction= -1,
+                       breaks = c(1,10,100,3000),
+                       name= "# Records")+
+  theme(legend.position = "right")
+plot2
+```
+
+## Temporal distribution
+
+Count records per year and plot barplot
+
+```{r}
+data_per_year<-
+  dat |> 
+  group_by(year) |> 
+  summarise(number=n())
+
+# inspect earliest years
+head(data_per_year)
+
+# inspect latest years
+tail(data_per_year)
+
+```
+
+The earliest data are from 1573. Not sure if that is correct. The latest are from 2025. There are some records without year information
+
+```{r}
+# plot data 
+plot3<-
+  data_per_year |> 
+  ggplot()+
+  geom_bar(aes(x=year, y=number), stat= "identity", fill = "#4daf4a")+
+  labs(y="# Records", x="Year")
+plot3
+```
+
+It's hard to see the few historical data. I'll facet the data along the Year axis
+
+```{r}
+
+# Splitting the data 
+data_per_year <- data_per_year %>%
+  mutate(period = case_when(
+    year < 1880 ~ "Before 1880",
+    year < 1980 ~ "1880 - 1980",
+    TRUE ~ "1980 – Present"
+  ),
+  period = factor(period, levels = c("Before 1880","1880 - 1980", "1980 – Present"))
+  )
+
+plot3<-
+  data_per_year |> 
+  ggplot()+
+  geom_bar(aes(x=year, y=number), stat= "identity", fill = "#4daf4a")+
+  labs(y="# Records", x="Year")+
+  facet_wrap(~ period, nrow = 1, scales = "free")
+
+plot3
+
+
+# count records per period for caption
+data_per_period <-
+data_per_year |> 
+  group_by(period) |> 
+  summarise(total=sum(number))
+
+data_per_period
+```
+
+## Combine Figure
+
+```{r}
+fig2<-plot_grid(plot2, plot3, nrow = 2, labels = c("A","B"))
+fig2
+
+
+```
+
+Save
+
+```{r}
+save_plot("figure2.jpg", fig2,ncol = 3, nrow = 2,base_asp = 0.8)
+```
+
+Lets look at the final JPG with figure caption.
+
+![**Figure 1:** Geographic and temporal scope of the data set. **A** Spatial distribution and number of records based on a 40 km hexagonal grid. **B** Temporal distribution as number of records per year. For better readability the data are facetted into three time periods: Before 1880 (`r data_per_period |> filter(period == "Before 1880") |> pull(total) |> as.numeric()` records), 1880–1980 (`r data_per_period |> filter(period == "1880 - 1980") |> pull(total) |> as.numeric()` records), 1980 – Present (`r data_per_period |> filter(period == "1980 – Present") |> pull(total) |> as.numeric()` records).](figure2.jpg)
