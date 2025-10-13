@@ -11,7 +11,7 @@ editor: visual
 -   <https://docs.github.com/en/pages> (github pages)
 -   <https://r4ds.hadley.nz/> (R vor data science)
 
-#### Biodiversity 
+#### Biodiversity
 
 -   <https://land.gbif.de/> (Lebendiger Atlas der Natur Deutschlands LAND)
 -   <https://biodiv-atlas.de/fische/#!/home> (GFI FIscharten-Altas)
