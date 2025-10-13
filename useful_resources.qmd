@@ -1,0 +1,25 @@
+---
+title: "Ressources"
+editor: visual
+---
+
+### Links
+
+#### Technical ressources
+
+-   [https://quarto.org](https://quarto.org/) (quarto documentation)
+-   <https://docs.github.com/en/pages> (github pages)
+-   <https://r4ds.hadley.nz/> (R vor data science)
+
+#### Biodiversity 
+
+-   <https://land.gbif.de/> (Lebendiger Atlas der Natur Deutschlands LAND)
+-   <https://biodiv-atlas.de/fische/#!/home> (GFI FIscharten-Altas)
+
+#### Data papers
+
+-   <https://www.gbif.org/data-papers> (About Data Papers)
+
+-   <https://doi.org/10.3897/BDJ.13.e150687> (ArtenFinder)
+
+-   <https://www.nature.com/articles/s41597-025-04846-8> (Historical Data)
