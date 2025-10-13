@@ -13,3 +13,5 @@ _site/
 *.zip
 gadm/
 /.quarto/
+
+plotting script.R
