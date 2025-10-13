@@ -1,5 +1,12 @@
 [
   {
+    "objectID": "Useful resources.html",
+    "href": "Useful resources.html",
+    "title": "Ressources",
+    "section": "",
+    "text": "Links\n\nTechnical ressources\n\nhttps://quarto.org (quarto documentation)\nhttps://docs.github.com/en/pages (github pages)\nhttps://r4ds.hadley.nz/ (R vor data science)\n\n\n\nBiodiversity\n\nhttps://land.gbif.de/ (Lebendiger Atlas der Natur Deutschlands LAND)\nhttps://biodiv-atlas.de/fische/#!/home (GFI FIscharten-Altas)\n\n\n\nData papers\n\nhttps://www.gbif.org/data-papers (About Data Papers)\nhttps://doi.org/10.3897/BDJ.13.e150687 (ArtenFinder)\nhttps://www.nature.com/articles/s41597-025-04846-8 (Historical Data)"
+  },
+  {
     "objectID": "data_wrangling_and_plotting.html",
     "href": "data_wrangling_and_plotting.html",
     "title": "GFI Fischartenatlas wrangling and plotting",
