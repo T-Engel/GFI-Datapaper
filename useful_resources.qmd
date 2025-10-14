@@ -5,11 +5,12 @@ editor: visual
 
 ### Links
 
-#### Technical ressources
+#### Technical resources and code
 
 -   [https://quarto.org](https://quarto.org/) (quarto documentation)
 -   <https://docs.github.com/en/pages> (github pages)
 -   <https://r4ds.hadley.nz/> (R vor data science)
+-   
 
 #### Biodiversity
 
@@ -23,3 +24,5 @@ editor: visual
 -   <https://doi.org/10.3897/BDJ.13.e150687> (ArtenFinder)
 
 -   <https://www.nature.com/articles/s41597-025-04846-8> (Historical Data)
+
+-   <https://github.com/T-Engel/GFI-Datapaper> (Thore's Fish quarto)
