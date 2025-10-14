@@ -5208,7 +5208,7 @@ window.onload = function() {
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># download shape</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>countries <span class="ot">&lt;-</span> <span class="fu">world</span>(<span class="at">resolution=</span><span class="dv">4</span>, <span class="at">path=</span> <span class="fu">tempdir</span>(), <span class="at">level=</span><span class="dv">0</span>, <span class="at">version=</span><span class="st">&quot;latest&quot;</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>countries <span class="ot">&lt;-</span> <span class="fu">world</span>(<span class="at">resolution=</span><span class="dv">4</span>, <span class="at">path=</span> <span class="st">&quot;.&quot;</span>, <span class="at">level=</span><span class="dv">0</span>, <span class="at">version=</span><span class="st">&quot;latest&quot;</span>)</span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># convert to sf object</span></span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>countries<span class="ot">&lt;-</span> sf<span class="sc">::</span><span class="fu">st_as_sf</span>(countries)</span>
