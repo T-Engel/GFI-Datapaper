@@ -75,11 +75,13 @@ Very few data points are outside of Germany.
 Plot simple world map with data:
 
 ```{r}
+#| cache: true
+
 included_countries <- records_per_country$countryCode
 
 # download shape
 
-countries <- world(resolution=4, path= tempdir(), level=0, version="latest")
+countries <- world(resolution=4, path= ".", level=0, version="latest")
 
 # convert to sf object
 countries<- sf::st_as_sf(countries)
