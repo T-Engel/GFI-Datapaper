@@ -33,7 +33,7 @@ theme_set(theme_cowplot()) # ggplot theme
 options(scipen=999) # Avoiding scientific notation of numbers
 
 # Retrieve data gbif 
-dat<-occ_download_get("0035794-250920141307145",overwrite = F) |> occ_download_import() #  https://doi.org/10.15468/dl.wuurkx
+dat<-occ_download_get("0005573-260519110011954",overwrite = F) |> occ_download_import() #  https://doi.org/10.15468/dl.wuurkx
 
 # remove columns with only NAs. They were added by GBIF.
 dat <-
